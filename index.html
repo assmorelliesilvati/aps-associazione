@@ -1,193 +1,231 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>APS Morelli e Silvati</title>
-  <meta name="theme-color" content="#1a73e8" />
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #333; min-height: 100vh; }
-    header { background: #1a73e8; color: white; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-    header h1 { font-size: 1.2rem; font-weight: 600; }
-    #utente-info { font-size: 0.8rem; opacity: 0.85; }
-    nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 14px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
-    nav button { background: none; border: none; font-size: 0.7rem; color: #888; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-    nav button span { font-size: 1.5rem; }
-    nav button.attivo { color: #1a73e8; font-weight: 600; }
-    main { padding: 20px 16px 90px; max-width: 600px; margin: 0 auto; }
-    .sezione { display: none; }
-    .sezione.attiva { display: block; }
-    .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.07); }
-    .card h3 { color: #1a73e8; margin-bottom: 6px; font-size: 1rem; }
-    .card p { font-size: 0.88rem; color: #555; line-height: 1.5; }
-    .card .meta { font-size: 0.75rem; color: #999; margin-top: 6px; }
-    #tessera-card { background: linear-gradient(135deg, #1a73e8, #0d47a1); color: white; border-radius: 16px; padding: 24px 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(26,115,232,0.4); }
-    #tessera-card h2 { font-size: 1.1rem; margin-bottom: 4px; }
-    .ruolo-badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 2px 10px; font-size: 0.75rem; margin-bottom: 16px; }
-    .codice { font-family: monospace; font-size: 1.3rem; letter-spacing: 3px; background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; display: inline-block; }
-    #login-box { background: white; border-radius: 16px; padding: 30px 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 380px; margin: 40px auto 0; }
-    #login-box h2 { color: #1a73e8; margin-bottom: 20px; }
-    #login-box input { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.95rem; margin-bottom: 14px; outline: none; }
-    #login-box input:focus { border-color: #1a73e8; }
-    #login-box button { width: 100%; background: #1a73e8; color: white; border: none; border-radius: 8px; padding: 13px; font-size: 1rem; cursor: pointer; font-weight: 600; }
-    #login-errore { color: #e53935; font-size: 0.85rem; margin-top: 10px; min-height: 20px; }
-    .form-admin input, .form-admin textarea, .form-admin select { width: 100%; padding: 11px 13px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.9rem; margin-bottom: 10px; font-family: inherit; outline: none; }
-    .form-admin textarea { min-height: 80px; resize: vertical; }
-    .btn-primario { background: #1a73e8; color: white; border: none; border-radius: 8px; padding: 12px 20px; font-size: 0.95rem; cursor: pointer; font-weight: 600; width: 100%; }
-    .titolo-sezione { font-size: 1.1rem; font-weight: 700; color: #1a4fa0; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #e3eaf5; }
-    .loading { text-align: center; color: #888; padding: 30px; font-size: 0.9rem; }
-    .vuoto { text-align: center; color: #bbb; padding: 30px; font-size: 0.9rem; }
-    .msg-ok { color: #2e7d32; }
-    .msg-err { color: #e53935; }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>APS Morelli e Silvati</title>
+<meta name="theme-color" content="#1a73e8"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#333;min-height:100vh}
+header{background:#1a73e8;color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+header h1{font-size:1.2rem;font-weight:600}
+#utente-info{font-size:0.8rem;opacity:0.85}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0 14px;box-shadow:0 -2px 10px rgba(0,0,0,0.1);z-index:100}
+nav button{background:none;border:none;font-size:0.7rem;color:#888;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+nav button span{font-size:1.5rem}
+nav button.attivo{color:#1a73e8;font-weight:600}
+main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
+.sezione{display:none}
+.sezione.attiva{display:block}
+.card{background:white;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,0.07)}
+.card h3{color:#1a73e8;margin-bottom:6px;font-size:1rem}
+.card p{font-size:0.88rem;color:#555;line-height:1.5}
+.card .meta{font-size:0.75rem;color:#999;margin-top:6px}
+#tessera-card{background:linear-gradient(135deg,#1a73e8,#0d47a1);color:white;border-radius:16px;padding:24px 20px;margin-bottom:20px;box-shadow:0 4px 15px rgba(26,115,232,0.4)}
+#tessera-card h2{font-size:1.1rem;margin-bottom:4px}
+.ruolo-badge{display:inline-block;background:rgba(255,255,255,0.2);border-radius:20px;padding:2px 10px;font-size:0.75rem;margin-bottom:16px}
+.codice{font-family:monospace;font-size:1.3rem;letter-spacing:3px;background:rgba(255,255,255,0.15);padding:8px 12px;border-radius:8px;display:inline-block}
+#login-box{background:white;border-radius:16px;padding:30px 24px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.1);max-width:380px;margin:40px auto 0}
+#login-box h2{color:#1a73e8;margin-bottom:20px}
+#login-box input{width:100%;padding:12px 14px;border:1.5px solid #ddd;border-radius:8px;font-size:0.95rem;margin-bottom:14px;outline:none}
+#login-box button{width:100%;background:#1a73e8;color:white;border:none;border-radius:8px;padding:13px;font-size:1rem;cursor:pointer;font-weight:600}
+#login-errore{color:#e53935;font-size:0.85rem;margin-top:10px;min-height:20px}
+.form-admin input,.form-admin textarea,.form-admin select{width:100%;padding:11px 13px;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;margin-bottom:10px;font-family:inherit;outline:none}
+.form-admin textarea{min-height:80px;resize:vertical}
+.btn-primario{background:#1a73e8;color:white;border:none;border-radius:8px;padding:12px 20px;font-size:0.95rem;cursor:pointer;font-weight:600;width:100%}
+.titolo-sezione{font-size:1.1rem;font-weight:700;color:#1a4fa0;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #e3eaf5}
+.loading{text-align:center;color:#888;padding:30px;font-size:0.9rem}
+.vuoto{text-align:center;color:#bbb;padding:30px;font-size:0.9rem}
+</style>
 </head>
 <body>
-
-<header>
-  <h1>🏛️ APS Morelli e Silvati</h1>
-  <div id="utente-info"></div>
-</header>
-
+<header><h1>🏛️ APS Morelli e Silvati</h1><div id="utente-info"></div></header>
 <main>
-  <div id="schermata-login">
-    <div id="login-box">
-      <h2>Accedi</h2>
-      <input type="email" id="login-email" placeholder="La tua email" onkeydown="if(event.key==='Enter') eseguiLogin()" />
-      <button onclick="eseguiLogin()">Entra</button>
-      <div id="login-errore"></div>
-    </div>
-  </div>
-
-  <div id="app-principale" style="display:none">
-
-    <div id="sez-home" class="sezione attiva">
-      <div id="tessera-card">
-        <div style="opacity:0.7;font-size:0.8rem;margin-bottom:4px;">TESSERA DIGITALE</div>
-        <h2 id="t-nome">Nome Cognome</h2>
-        <div class="ruolo-badge" id="t-ruolo">Tesserato</div>
-        <div style="margin-top:12px;opacity:0.8;font-size:0.8rem;">Codice Tessera</div>
-        <div class="codice" id="t-codice">TESS-XXXXXX</div>
-      </div>
-      <p class="titolo-sezione">Ultime News</p>
-      <div id="lista-news-home"><div class="loading">Caricamento...</div></div>
-    </div>
-
-    <div id="sez-eventi" class="sezione">
-      <p class="titolo-sezione">Prossimi Eventi</p>
-      <div id="lista-eventi"><div class="loading">Caricamento...</div></div>
-    </div>
-
-    <div id="sez-admin" class="sezione">
-      <p class="titolo-sezione">Pannello Soci</p>
-      <div class="card">
-        <h3>➕ Aggiungi Tesserato</h3>
-        <div class="form-admin" style="margin-top:12px">
-          <input id="a-nome" placeholder="Nome" />
-          <input id="a-cognome" placeholder="Cognome" />
-          <select id="a-ruolo">
-            <option value="Tesserato">Tesserato</option>
-            <option value="Socio">Socio</option>
-          </select>
-          <input id="a-email" type="email" placeholder="Email" />
-          <input id="a-telefono" type="tel" placeholder="Telefono" />
-          <button class="btn-primario" onclick="aggiungiUtente()">Salva Tesserato</button>
-          <div id="msg-utente" style="margin-top:8px;font-size:0.85rem;"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>📅 Nuovo Evento</h3>
-        <div class="form-admin" style="margin-top:12px">
-          <input id="e-titolo" placeholder="Titolo evento" />
-          <input id="e-data" type="date" />
-          <input id="e-luogo" placeholder="Luogo" />
-          <textarea id="e-descrizione" placeholder="Descrizione..."></textarea>
-          <button class="btn-primario" onclick="aggiungiEvento()">Pubblica Evento</button>
-          <div id="msg-evento" style="margin-top:8px;font-size:0.85rem;"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>📰 Nuova News</h3>
-        <div class="form-admin" style="margin-top:12px">
-          <input id="n-titolo" placeholder="Titolo news" />
-          <textarea id="n-contenuto" placeholder="Testo della news..."></textarea>
-          <button class="btn-primario" onclick="aggiungiNews()">Pubblica News</button>
-          <div id="msg-news" style="margin-top:8px;font-size:0.85rem;"></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
+<div id="schermata-login">
+<div id="login-box">
+<h2>Accedi</h2>
+<input type="email" id="login-email" placeholder="La tua email" onkeydown="if(event.key==='Enter')eseguiLogin()"/>
+<button onclick="eseguiLogin()">Entra</button>
+<div id="login-errore"></div>
+</div>
+</div>
+<div id="app-principale" style="display:none">
+<div id="sez-home" class="sezione attiva">
+<div id="tessera-card">
+<div style="opacity:0.7;font-size:0.8rem;margin-bottom:4px">TESSERA DIGITALE</div>
+<h2 id="t-nome">Nome Cognome</h2>
+<div class="ruolo-badge" id="t-ruolo">Tesserato</div>
+<div style="margin-top:12px;opacity:0.8;font-size:0.8rem">Codice Tessera</div>
+<div class="codice" id="t-codice">TESS-XXXXXX</div>
+</div>
+<p class="titolo-sezione">Ultime News</p>
+<div id="lista-news-home"><div class="loading">Caricamento...</div></div>
+</div>
+<div id="sez-eventi" class="sezione">
+<p class="titolo-sezione">Prossimi Eventi</p>
+<div id="lista-eventi"><div class="loading">Caricamento...</div></div>
+</div>
+<div id="sez-admin" class="sezione">
+<p class="titolo-sezione">Pannello Soci</p>
+<div class="card"><h3>➕ Aggiungi Tesserato</h3>
+<div class="form-admin" style="margin-top:12px">
+<input id="a-nome" placeholder="Nome"/>
+<input id="a-cognome" placeholder="Cognome"/>
+<select id="a-ruolo"><option value="Tesserato">Tesserato</option><option value="Socio">Socio</option></select>
+<input id="a-email" type="email" placeholder="Email"/>
+<input id="a-telefono" type="tel" placeholder="Telefono"/>
+<button class="btn-primario" onclick="aggiungiUtente()">Salva Tesserato</button>
+<div id="msg-utente" style="margin-top:8px;font-size:0.85rem"></div>
+</div></div>
+<div class="card"><h3>📅 Nuovo Evento</h3>
+<div class="form-admin" style="margin-top:12px">
+<input id="e-titolo" placeholder="Titolo evento"/>
+<input id="e-data" type="date"/>
+<input id="e-luogo" placeholder="Luogo"/>
+<textarea id="e-descrizione" placeholder="Descrizione..."></textarea>
+<button class="btn-primario" onclick="aggiungiEvento()">Pubblica Evento</button>
+<div id="msg-evento" style="margin-top:8px;font-size:0.85rem"></div>
+</div></div>
+<div class="card"><h3>📰 Nuova News</h3>
+<div class="form-admin" style="margin-top:12px">
+<input id="n-titolo" placeholder="Titolo news"/>
+<textarea id="n-contenuto" placeholder="Testo della news..."></textarea>
+<button class="btn-primario" onclick="aggiungiNews()">Pubblica News</button>
+<div id="msg-news" style="margin-top:8px;font-size:0.85rem"></div>
+</div></div>
+</div>
+</div>
 </main>
-
 <nav id="nav-bar" style="display:none">
-  <button class="attivo" onclick="mostraSezione('home', this)"><span>🏠</span>Home</button>
-  <button onclick="mostraSezione('eventi', this)"><span>📅</span>Eventi</button>
-  <button id="btn-admin" style="display:none" onclick="mostraSezione('admin', this)"><span>⚙️</span>Gestione</button>
+<button class="attivo" onclick="mostraSezione('home',this)"><span>🏠</span>Home</button>
+<button onclick="mostraSezione('eventi',this)"><span>📅</span>Eventi</button>
+<button id="btn-admin" style="display:none" onclick="mostraSezione('admin',this)"><span>⚙️</span>Gestione</button>
 </nav>
-
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbytyqnN7KrLxKMwWDJOjTT9i2uPUguzBYa9fTnqaYI05ZzJTxV4ERMPJhyxArlQI9effQ/exec';
-let utente = null;
-
-async function eseguiLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const err = document.getElementById('login-errore');
-  if (!email) { err.textContent = 'Inserisci la tua email.'; return; }
-  err.textContent = 'Accesso in corso...';
-  try {
-    const r = await fetch(API + '?action=login&email=' + encodeURIComponent(email));
-    const d = await r.json();
-    if (d.successo) { utente = d; avviaApp(); }
-    else { err.textContent = 'Email non trovata. Contatta un socio.'; }
-  } catch(e) { err.textContent = 'Errore di connessione. Riprova.'; }
+const API='https://script.google.com/macros/s/AKfycbytyqnN7KrLxKMwWDJOjTT9i2uPUguzBYa9fTnqaYI05ZzJTxV4ERMPJhyxArlQI9effQ/exec';
+let utente=null;
+async function eseguiLogin(){
+const email=document.getElementById('login-email').value.trim();
+const err=document.getElementById('login-errore');
+if(!email){err.textContent='Inserisci la tua email.';return;}
+err.textContent='Accesso in corso...';
+try{
+const r=await fetch(API+'?action=login&email='+encodeURIComponent(email));
+const d=await r.json();
+if(d.successo){utente=d;avviaApp();}
+else{err.textContent='Email non trovata. Contatta un socio.';}
+}catch(e){err.textContent='Errore di connessione. Riprova.';}
 }
-
-function avviaApp() {
-  document.getElementById('schermata-login').style.display = 'none';
-  document.getElementById('app-principale').style.display = 'block';
-  document.getElementById('nav-bar').style.display = 'flex';
-  document.getElementById('t-nome').textContent = utente.nome + ' ' + utente.cognome;
-  document.getElementById('t-ruolo').textContent = utente.ruolo;
-  document.getElementById('t-codice').textContent = utente.codice_tessera;
-  document.getElementById('utente-info').textContent = utente.nome;
-  if (utente.ruolo === 'Socio') document.getElementById('btn-admin').style.display = 'flex';
-  caricaNews();
-  caricaEventi();
+function avviaApp(){
+document.getElementById('schermata-login').style.display='none';
+document.getElementById('app-principale').style.display='block';
+document.getElementById('nav-bar').style.display='flex';
+document.getElementById('t-nome').textContent=utente.nome+' '+utente.cognome;
+document.getElementById('t-ruolo').textContent=utente.ruolo;
+document.getElementById('t-codice').textContent=utente.codice_tessera;
+document.getElementById('utente-info').textContent=utente.nome;
+if(utente.ruolo==='Socio')document.getElementById('btn-admin').style.display='flex';
+caricaNews();caricaEventi();
 }
-
-function mostraSezione(nome, btn) {
-  document.querySelectorAll('.sezione').forEach(s => s.classList.remove('attiva'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('attivo'));
-  document.getElementById('sez-' + nome).classList.add('attiva');
-  btn.classList.add('attivo');
+function mostraSezione(nome,btn){
+document.querySelectorAll('.sezione').forEach(s=>s.classList.remove('attiva'));
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('attivo'));
+document.getElementById('sez-'+nome).classList.add('attiva');
+btn.classList.add('attivo');
 }
-
-async function caricaNews() {
-  try {
-    const r = await fetch(API + '?action=getNews');
-    const news = await r.json();
-    const div = document.getElementById('lista-news-home');
-    if (!news.length) { div.innerHTML = '<div class="vuoto">Nessuna news pubblicata.</div>'; return; }
-    div.innerHTML = news.slice(-3).reverse().map(n =>
-      '<div class="card"><h3>' + n.Titolo + '</h3><p>' + n.Contenuto + '</p><div class="meta">📅 ' + n.Data + '</div></div>'
-    ).join('');
-  } catch(e) { document.getElementById('lista-news-home').innerHTML = '<div class="vuoto">Errore caricamento.</div>'; }
+async function caricaNews(){
+try{
+const r=await fetch(API+'?action=getNews');
+const news=await r.json();
+const div=document.getElementById('lista-news-home');
+if(!news.length){div.innerHTML='<div class="vuoto">Nessuna news pubblicata.</div>';return;}
+div.innerHTML=news.slice(-3).reverse().map(n=>'<div class="card"><h3>'+n.Titolo+'</h3><p>'+n.Contenuto+'</p><div class="meta">📅 '+n.Data+'</div></div>').join('');
+}catch(e){document.getElementById('lista-news-home').innerHTML='<div class="vuoto">Errore caricamento.</div>';}
 }
-
-async function caricaEventi() {
-  try {
-    const r = await fetch(API + '?action=getEventi');
-    const ev = await r.json();
-    const div = document.getElementById('lista-eventi');
-    if (!ev.length) { div.innerHTML = '<div class="vuoto">Nessun evento in programma.</div>'; return; }
-    div.innerHTML = ev.map(e =>
-      '<div class="card"><h3>' + e.Titolo + '</h3><p>' + e.Descrizione + '</p><div class="meta">📅 ' + e.Data + ' &nbsp;|&nbsp; 📍 ' + e.Luogo + '</div></div>'
-    ).join('');
-  } catch(e) { document.getElementById('lista-eventi').innerHTML = '<div class="vuoto">Errore caricamento.</div>'; }
+async function caricaEventi(){
+try{
+const r=await fetch(API+'?action=getEventi');
+const ev=await r.json();
+const div=document.getElementById('lista-eventi');
+if(!ev.length){div.innerHTML='<div class="vuoto">Nessun evento in programma.</div>';return;}
+div.innerHTML=ev.map(e=>'<div class="card"><h3>'+e.Titolo+'</h3><p>'+e.Descrizione+'</p><div class="meta">📅 '+e.Data+' | 📍 '+e.Luogo+'</div></div>').join('');
+}catch(e){document.getElementById('lista-eventi').innerHTML='<div class="vuoto">Errore caricamento.</div>';}
 }
-
-async function aggiungiUtente() {
-  const url = API + '?action=addUtente&nome=' + encodeURIComponent(document.getElementById('a-nome').value) +
-    '&cognome=' + encodeURIComponent(document.getElementById('a-cognome').value) +
-    '&ruolo='
+async function aggiungiUtente(){
+const url=API+'?action=addUtente&nome='+encodeURIComponent(document.getElementById('a-nome').value)+'&cognome='+encodeURIComponent(document.getElementById('a-cognome').value)+'&ruolo='+encodeURIComponent(document.getElementById('a-ruolo').value)+'&email='+encodeURIComponent(document.getElementById('a-email').value)+'&telefono='+encodeURIComponent(document.getElementById('a-telefono').value);
+try{const r=await fetch(url);const d=await r.json();document.getElementById('msg-utente').textContent=d.successo?'✅ Aggiunto! Codice: '+d.codice_tessera:'❌ Errore.';}
+catch(e){document.getElementById('msg-utente').textContent='❌ Errore di connessione.';}
+}
+async function aggiungiEvento(){
+const url=API+'?action=addEvento&titolo='+encodeURIComponent(document.getElementById('e-titolo').value)+'&data='+encodeURIComponent(document.getElementById('e-data').value)+'&luogo='+encodeURIComponent(document.getElementById('e-luogo').value)+'&descrizione='+encodeURIComponent(document.getElementById('e-descrizione').value);
+try{const r=await fetch(url);const d=await r.json();document.getElementById('msg-evento').textContent=d.successo?'✅ Evento pubblicato!':'❌ Errore.';}
+catch(e){document.getElementById('msg-evento').textContent='❌
+<script>
+const API='https://script.google.com/macros/s/AKfycbytyqnN7KrLxKMwWDJOjTT9i2uPUguzBYa9fTnqaYI05ZzJTxV4ERMPJhyxArlQI9effQ/exec';
+let utente=null;
+async function eseguiLogin(){
+const email=document.getElementById('login-email').value.trim();
+const err=document.getElementById('login-errore');
+if(!email){err.textContent='Inserisci la tua email.';return;}
+err.textContent='Accesso in corso...';
+try{
+const r=await fetch(API+'?action=login&email='+encodeURIComponent(email));
+const d=await r.json();
+if(d.successo){utente=d;avviaApp();}
+else{err.textContent='Email non trovata. Contatta un socio.';}
+}catch(e){err.textContent='Errore di connessione. Riprova.';}
+}
+function avviaApp(){
+document.getElementById('schermata-login').style.display='none';
+document.getElementById('app-principale').style.display='block';
+document.getElementById('nav-bar').style.display='flex';
+document.getElementById('t-nome').textContent=utente.nome+' '+utente.cognome;
+document.getElementById('t-ruolo').textContent=utente.ruolo;
+document.getElementById('t-codice').textContent=utente.codice_tessera;
+document.getElementById('utente-info').textContent=utente.nome;
+if(utente.ruolo==='Socio')document.getElementById('btn-admin').style.display='flex';
+caricaNews();caricaEventi();
+}
+function mostraSezione(nome,btn){
+document.querySelectorAll('.sezione').forEach(s=>s.classList.remove('attiva'));
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('attivo'));
+document.getElementById('sez-'+nome).classList.add('attiva');
+btn.classList.add('attivo');
+}
+async function caricaNews(){
+try{
+const r=await fetch(API+'?action=getNews');
+const news=await r.json();
+const div=document.getElementById('lista-news-home');
+if(!news.length){div.innerHTML='<div class="vuoto">Nessuna news pubblicata.</div>';return;}
+div.innerHTML=news.slice(-3).reverse().map(n=>'<div class="card"><h3>'+n.Titolo+'</h3><p>'+n.Contenuto+'</p><div class="meta">📅 '+n.Data+'</div></div>').join('');
+}catch(e){document.getElementById('lista-news-home').innerHTML='<div class="vuoto">Errore caricamento.</div>';}
+}
+async function caricaEventi(){
+try{
+const r=await fetch(API+'?action=getEventi');
+const ev=await r.json();
+const div=document.getElementById('lista-eventi');
+if(!ev.length){div.innerHTML='<div class="vuoto">Nessun evento in programma.</div>';return;}
+div.innerHTML=ev.map(e=>'<div class="card"><h3>'+e.Titolo+'</h3><p>'+e.Descrizione+'</p><div class="meta">📅 '+e.Data+' | 📍 '+e.Luogo+'</div></div>').join('');
+}catch(e){document.getElementById('lista-eventi').innerHTML='<div class="vuoto">Errore caricamento.</div>';}
+}
+async function aggiungiUtente(){
+const url=API+'?action=addUtente&nome='+encodeURIComponent(document.getElementById('a-nome').value)+'&cognome='+encodeURIComponent(document.getElementById('a-cognome').value)+'&ruolo='+encodeURIComponent(document.getElementById('a-ruolo').value)+'&email='+encodeURIComponent(document.getElementById('a-email').value)+'&telefono='+encodeURIComponent(document.getElementById('a-telefono').value);
+try{const r=await fetch(url);const d=await r.json();document.getElementById('msg-utente').textContent=d.successo?'✅ Aggiunto! Codice: '+d.codice_tessera:'❌ Errore.';}
+catch(e){document.getElementById('msg-utente').textContent='❌ Errore di connessione.';}
+}
+async function aggiungiEvento(){
+const url=API+'?action=addEvento&titolo='+encodeURIComponent(document.getElementById('e-titolo').value)+'&data='+encodeURIComponent(document.getElementById('e-data').value)+'&luogo='+encodeURIComponent(document.getElementById('e-luogo').value)+'&descrizione='+encodeURIComponent(document.getElementById('e-descrizione').value);
+try{const r=await fetch(url);const d=await r.json();document.getElementById('msg-evento').textContent=d.successo?'✅ Evento pubblicato!':'❌ Errore.';}
+catch(e){document.getElementById('msg-evento').textContent='❌ Errore di connessione.';}
+}
+async function aggiungiNews(){
+const url=API+'?action=addNews&titolo='+encodeURIComponent(document.getElementById('n-titolo').value)+'&contenuto='+encodeURIComponent(document.getElementById('n-contenuto').value);
+try{const r=await fetch(url);const d=await r.json();document.getElementById('msg-news').textContent=d.successo?'✅ News pubblicata!':'❌ Errore.';}
+catch(e){document.getElementById('msg-news').textContent='❌ Errore di connessione.';}
+}
+</script>
+</body>
+</html>
