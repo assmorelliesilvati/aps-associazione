@@ -32,7 +32,8 @@ main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
 .fa input,.fa textarea,.fa select{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;margin-bottom:10px;font-family:inherit;outline:none}
 .fa textarea{min-height:70px;resize:vertical}
 .bp{background:#1a73e8;color:white;border:none;border-radius:8px;padding:12px;font-size:.9rem;cursor:pointer;font-weight:600;width:100%}
-.ts{font-size:1rem;font-weight:700;color:#1a4fa0;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e3eaf5}
+.ts{font-size:1rem;font-weight:700;color:#1a4fa0;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e3eaf5;display:flex;align-items:center;justify-content:space-between}
+.btn-refresh{background:none;border:none;font-size:1.1rem;cursor:pointer;color:#1a73e8;padding:0}
 .load{text-align:center;color:#888;padding:24px;font-size:.9rem}
 .empty{text-align:center;color:#bbb;padding:24px;font-size:.9rem}
 .msg{font-size:.85rem;margin-top:8px}
@@ -58,15 +59,18 @@ main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
 <div style="margin-top:10px;opacity:.8;font-size:.75rem">Codice</div>
 <div class="codice" id="tcodice">TESS-XXXXXX</div>
 </div>
-<div class="ts">Ultime News</div>
+<div class="ts">
+<span>Ultime News</span>
+<button class="btn-refresh" id="btnRefresh" title="Aggiorna">&#8635;</button>
+</div>
 <div id="news-list"><div class="load">Caricamento...</div></div>
 </div>
 <div id="s-eventi" class="sez">
-<div class="ts">Prossimi Eventi</div>
+<div class="ts"><span>Prossimi Eventi</span></div>
 <div id="ev-list"><div class="load">Caricamento...</div></div>
 </div>
 <div id="s-admin" class="sez">
-<div class="ts">Pannello Soci</div>
+<div class="ts"><span>Pannello Soci</span></div>
 <div class="card">
 <h3>Aggiungi Tesserato</h3>
 <div class="fa" style="margin-top:10px">
@@ -103,13 +107,14 @@ main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
 </div>
 </main>
 <nav id="nav" style="display:none">
-<button class="attivo" id="nb-home"><span>🏠</span>Home</button>
-<button id="nb-eventi"><span>📅</span>Eventi</button>
-<button id="nb-admin" style="display:none"><span>⚙️</span>Gestione</button>
+<button class="attivo" id="nb-home"><span>&#127968;</span>Home</button>
+<button id="nb-eventi"><span>&#128197;</span>Eventi</button>
+<button id="nb-admin" style="display:none"><span>&#9881;&#65039;</span>Gestione</button>
 </nav>
 <script>
 var API = 'https://script.google.com/macros/s/AKfycbytyqnN7KrLxKMwWDJOjTT9i2uPUguzBYa9fTnqaYI05ZzJTxV4ERMPJhyxArlQI9effQ/exec';
 var utente = null;
+var timer = null;
 
 document.getElementById('btnLogin').addEventListener('click', function() {
   var email = document.getElementById('email').value.trim();
@@ -134,7 +139,9 @@ function avvia() {
   document.getElementById('tcodice').textContent = utente.codice_tessera;
   document.getElementById('uinfo').textContent = utente.nome;
   if (utente.ruolo === 'Socio') document.getElementById('nb-admin').style.display = 'flex';
-  loadNews(); loadEventi();
+  loadNews();
+  loadEventi();
+  timer = setInterval(function() { loadNews(); loadEventi(); }, 30000);
 }
 
 function vai(nome) {
@@ -142,11 +149,16 @@ function vai(nome) {
   document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('attivo'); });
   document.getElementById('s-' + nome).classList.add('on');
   document.getElementById('nb-' + nome).classList.add('attivo');
+  if (nome === 'home') { loadNews(); loadEventi(); }
 }
 
 document.getElementById('nb-home').addEventListener('click', function() { vai('home'); });
 document.getElementById('nb-eventi').addEventListener('click', function() { vai('eventi'); });
 document.getElementById('nb-admin').addEventListener('click', function() { vai('admin'); });
+document.getElementById('btnRefresh').addEventListener('click', function() {
+  document.getElementById('news-list').innerHTML = '<div class="load">Aggiornamento...</div>';
+  loadNews(); loadEventi();
+});
 
 function loadNews() {
   fetch(API + '?action=getNews')
@@ -158,7 +170,7 @@ function loadNews() {
         return '<div class="card"><h3>' + n.Titolo + '</h3><p>' + n.Contenuto + '</p><div class="meta">' + n.Data + '</div></div>';
       }).join('');
     })
-    .catch(function() { document.getElementById('news-list').innerHTML = '<div class="empty">Errore.</div>'; });
+    .catch(function() { document.getElementById('news-list').innerHTML = '<div class="empty">Errore caricamento.</div>'; });
 }
 
 function loadEventi() {
@@ -171,13 +183,14 @@ function loadEventi() {
         return '<div class="card"><h3>' + e.Titolo + '</h3><p>' + e.Descrizione + '</p><div class="meta">' + e.Data + ' - ' + e.Luogo + '</div></div>';
       }).join('');
     })
-    .catch(function() { document.getElementById('ev-list').innerHTML = '<div class="empty">Errore.</div>'; });
+    .catch(function() { document.getElementById('ev-list').innerHTML = '<div class="empty">Errore caricamento.</div>'; });
 }
 
 document.getElementById('btnAddU').addEventListener('click', function() {
   var url = API + '?action=addUtente&nome=' + encodeURIComponent(document.getElementById('an').value) + '&cognome=' + encodeURIComponent(document.getElementById('ac').value) + '&ruolo=' + encodeURIComponent(document.getElementById('ar').value) + '&email=' + encodeURIComponent(document.getElementById('ae').value) + '&telefono=' + encodeURIComponent(document.getElementById('at').value);
   fetch(url).then(function(r) { return r.json(); }).then(function(d) {
     document.getElementById('mu').textContent = d.successo ? 'Aggiunto! Codice: ' + d.codice_tessera : 'Errore.';
+    if (d.successo) { document.getElementById('an').value=''; document.getElementById('ac').value=''; document.getElementById('ae').value=''; document.getElementById('at').value=''; }
   }).catch(function() { document.getElementById('mu').textContent = 'Errore connessione.'; });
 });
 
@@ -185,15 +198,9 @@ document.getElementById('btnAddE').addEventListener('click', function() {
   var url = API + '?action=addEvento&titolo=' + encodeURIComponent(document.getElementById('et').value) + '&data=' + encodeURIComponent(document.getElementById('ed').value) + '&luogo=' + encodeURIComponent(document.getElementById('el').value) + '&descrizione=' + encodeURIComponent(document.getElementById('edes').value);
   fetch(url).then(function(r) { return r.json(); }).then(function(d) {
     document.getElementById('me').textContent = d.successo ? 'Evento pubblicato!' : 'Errore.';
+    if (d.successo) { document.getElementById('et').value=''; document.getElementById('el').value=''; document.getElementById('edes').value=''; }
   }).catch(function() { document.getElementById('me').textContent = 'Errore connessione.'; });
 });
 
 document.getElementById('btnAddN').addEventListener('click', function() {
-  var url = API + '?action=addNews&titolo=' + encodeURIComponent(document.getElementById('nt').value) + '&contenuto=' + encodeURIComponent(document.getElementById('nc').value);
-  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
-    document.getElementById('mn').textContent = d.successo ? 'News pubblicata!' : 'Errore.';
-  }).catch(function() { document.getElementById('mn').textContent = 'Errore connessione.'; });
-});
-</script>
-</body>
-</html>
+  var url = API + '?action=addNews&titolo=' +
