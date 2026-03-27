@@ -10,7 +10,7 @@ body{font-family:sans-serif;background:#f0f4f8;color:#333}
 header{background:#1a73e8;color:white;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 header h1{font-size:1.1rem}
 nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0 14px;box-shadow:0 -2px 10px rgba(0,0,0,.1);z-index:100}
-nav button{background:none;border:none;font-size:.7rem;color:#888;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+nav button{background:none;border:none;font-size:.65rem;color:#888;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
 nav button span{font-size:1.4rem}
 nav button.attivo{color:#1a73e8;font-weight:700}
 main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
@@ -32,11 +32,20 @@ main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
 .fa input,.fa textarea,.fa select{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:.9rem;margin-bottom:10px;font-family:inherit;outline:none}
 .fa textarea{min-height:70px;resize:vertical}
 .bp{background:#1a73e8;color:white;border:none;border-radius:8px;padding:12px;font-size:.9rem;cursor:pointer;font-weight:600;width:100%}
-.ts{font-size:1rem;font-weight:700;color:#1a4fa0;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e3eaf5;display:flex;align-items:center;justify-content:space-between}
-.btn-refresh{background:none;border:none;font-size:1.1rem;cursor:pointer;color:#1a73e8;padding:0}
+.ts{font-size:1rem;font-weight:700;color:#1a4fa0;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e3eaf5}
 .load{text-align:center;color:#888;padding:24px;font-size:.9rem}
 .empty{text-align:center;color:#bbb;padding:24px;font-size:.9rem}
 .msg{font-size:.85rem;margin-top:8px}
+.album-card{background:white;border-radius:12px;padding:16px;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,.07);cursor:pointer}
+.album-card h3{color:#1a73e8;margin-bottom:4px}
+.album-card .album-info{font-size:.8rem;color:#999}
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.foto-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer}
+.back-btn{background:none;border:none;color:#1a73e8;font-size:.9rem;cursor:pointer;margin-bottom:14px;padding:0;display:flex;align-items:center;gap:4px}
+.lightbox{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:999;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:95vw;max-height:90vh;border-radius:8px}
+.lightbox-close{position:absolute;top:16px;right:20px;color:white;font-size:2rem;cursor:pointer;background:none;border:none}
 </style>
 </head>
 <body>
@@ -59,18 +68,26 @@ main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
 <div style="margin-top:10px;opacity:.8;font-size:.75rem">Codice</div>
 <div class="codice" id="tcodice">TESS-XXXXXX</div>
 </div>
-<div class="ts">
-<span>Ultime News</span>
-<button class="btn-refresh" id="btnRefresh" title="Aggiorna">&#8635;</button>
-</div>
+<div class="ts">Ultime News</div>
 <div id="news-list"><div class="load">Caricamento...</div></div>
 </div>
 <div id="s-eventi" class="sez">
-<div class="ts"><span>Prossimi Eventi</span></div>
+<div class="ts">Prossimi Eventi</div>
 <div id="ev-list"><div class="load">Caricamento...</div></div>
 </div>
+<div id="s-gallery" class="sez">
+<div id="album-view">
+<div class="ts">Galleria Foto</div>
+<div id="album-list"><div class="load">Caricamento...</div></div>
+</div>
+<div id="foto-view" style="display:none">
+<button class="back-btn" id="btnBack">&#8592; Torna agli album</button>
+<div class="ts" id="album-titolo"></div>
+<div class="foto-grid" id="foto-list"></div>
+</div>
+</div>
 <div id="s-admin" class="sez">
-<div class="ts"><span>Pannello Soci</span></div>
+<div class="ts">Pannello Soci</div>
 <div class="card">
 <h3>Aggiungi Tesserato</h3>
 <div class="fa" style="margin-top:10px">
@@ -106,110 +123,91 @@ main{padding:20px 16px 90px;max-width:600px;margin:0 auto}
 </div>
 </div>
 </main>
+<div class="lightbox" id="lightbox">
+<button class="lightbox-close" id="lbClose">&#10005;</button>
+<img id="lbImg" src="" alt="">
+</div>
 <nav id="nav" style="display:none">
 <button class="attivo" id="nb-home"><span>&#127968;</span>Home</button>
 <button id="nb-eventi"><span>&#128197;</span>Eventi</button>
+<button id="nb-gallery"><span>&#128247;</span>Gallery</button>
 <button id="nb-admin" style="display:none"><span>&#9881;&#65039;</span>Gestione</button>
 </nav>
 <script>
-var API = 'https://script.google.com/macros/s/AKfycbytyqnN7KrLxKMwWDJOjTT9i2uPUguzBYa9fTnqaYI05ZzJTxV4ERMPJhyxArlQI9effQ/exec';
-var utente = null;
-var timer = null;
+var API='https://script.google.com/macros/s/AKfycbytyqnN7KrLxKMwWDJOjTT9i2uPUguzBYa9fTnqaYI05ZzJTxV4ERMPJhyxArlQI9effQ/exec';
+var utente=null;
+var timer=null;
 
-document.getElementById('btnLogin').addEventListener('click', function() {
-  var email = document.getElementById('email').value.trim();
-  var err = document.getElementById('lerr');
-  if (!email) { err.textContent = 'Inserisci la tua email.'; return; }
-  err.textContent = 'Accesso in corso...';
-  fetch(API + '?action=login&email=' + encodeURIComponent(email))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d.successo) { utente = d; avvia(); }
-      else { err.textContent = 'Email non trovata.'; }
-    })
-    .catch(function() { err.textContent = 'Errore connessione.'; });
+document.getElementById('btnLogin').addEventListener('click',function(){
+var email=document.getElementById('email').value.trim();
+var err=document.getElementById('lerr');
+if(!email){err.textContent='Inserisci la tua email.';return;}
+err.textContent='Accesso in corso...';
+fetch(API+'?action=login&email='+encodeURIComponent(email))
+.then(function(r){return r.json();})
+.then(function(d){if(d.successo){utente=d;avvia();}else{err.textContent='Email non trovata.';}})
+.catch(function(){err.textContent='Errore connessione.';});
 });
 
-function avvia() {
-  document.getElementById('login').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('nav').style.display = 'flex';
-  document.getElementById('tnome').textContent = utente.nome + ' ' + utente.cognome;
-  document.getElementById('truolo').textContent = utente.ruolo;
-  document.getElementById('tcodice').textContent = utente.codice_tessera;
-  document.getElementById('uinfo').textContent = utente.nome;
-  if (utente.ruolo === 'Socio') document.getElementById('nb-admin').style.display = 'flex';
-  loadNews();
-  loadEventi();
-  timer = setInterval(function() { loadNews(); loadEventi(); }, 30000);
+function avvia(){
+document.getElementById('login').style.display='none';
+document.getElementById('app').style.display='block';
+document.getElementById('nav').style.display='flex';
+document.getElementById('tnome').textContent=utente.nome+' '+utente.cognome;
+document.getElementById('truolo').textContent=utente.ruolo;
+document.getElementById('tcodice').textContent=utente.codice_tessera;
+document.getElementById('uinfo').textContent=utente.nome;
+if(utente.ruolo==='Socio')document.getElementById('nb-admin').style.display='flex';
+loadNews();loadEventi();
+timer=setInterval(function(){loadNews();loadEventi();},30000);
 }
 
-function vai(nome) {
-  document.querySelectorAll('.sez').forEach(function(s) { s.classList.remove('on'); });
-  document.querySelectorAll('nav button').forEach(function(b) { b.classList.remove('attivo'); });
-  document.getElementById('s-' + nome).classList.add('on');
-  document.getElementById('nb-' + nome).classList.add('attivo');
-  if (nome === 'home') { loadNews(); loadEventi(); }
+function vai(nome){
+document.querySelectorAll('.sez').forEach(function(s){s.classList.remove('on');});
+document.querySelectorAll('nav button').forEach(function(b){b.classList.remove('attivo');});
+document.getElementById('s-'+nome).classList.add('on');
+document.getElementById('nb-'+nome).classList.add('attivo');
+if(nome==='home'){loadNews();loadEventi();}
+if(nome==='gallery'){loadGallery();}
 }
 
-document.getElementById('nb-home').addEventListener('click', function() { vai('home'); });
-document.getElementById('nb-eventi').addEventListener('click', function() { vai('eventi'); });
-document.getElementById('nb-admin').addEventListener('click', function() { vai('admin'); });
-document.getElementById('btnRefresh').addEventListener('click', function() {
-  document.getElementById('news-list').innerHTML = '<div class="load">Aggiornamento...</div>';
-  loadNews(); loadEventi();
-});
+document.getElementById('nb-home').addEventListener('click',function(){vai('home');});
+document.getElementById('nb-eventi').addEventListener('click',function(){vai('eventi');});
+document.getElementById('nb-gallery').addEventListener('click',function(){vai('gallery');});
+document.getElementById('nb-admin').addEventListener('click',function(){vai('admin');});
 
-function loadNews() {
-  fetch(API + '?action=getNews')
-    .then(function(r) { return r.json(); })
-    .then(function(list) {
-      var div = document.getElementById('news-list');
-      if (!list.length) { div.innerHTML = '<div class="empty">Nessuna news.</div>'; return; }
-      div.innerHTML = list.slice(-3).reverse().map(function(n) {
-        return '<div class="card"><h3>' + n.Titolo + '</h3><p>' + n.Contenuto + '</p><div class="meta">' + n.Data + '</div></div>';
-      }).join('');
-    })
-    .catch(function() { document.getElementById('news-list').innerHTML = '<div class="empty">Errore caricamento.</div>'; });
+function loadNews(){
+fetch(API+'?action=getNews')
+.then(function(r){return r.json();})
+.then(function(list){
+var div=document.getElementById('news-list');
+if(!list.length){div.innerHTML='<div class="empty">Nessuna news.</div>';return;}
+div.innerHTML=list.slice(-3).reverse().map(function(n){
+return '<div class="card"><h3>'+n.Titolo+'</h3><p>'+n.Contenuto+'</p><div class="meta">'+n.Data+'</div></div>';
+}).join('');
+}).catch(function(){document.getElementById('news-list').innerHTML='<div class="empty">Errore.</div>';});
 }
 
-function loadEventi() {
-  fetch(API + '?action=getEventi')
-    .then(function(r) { return r.json(); })
-    .then(function(list) {
-      var div = document.getElementById('ev-list');
-      if (!list.length) { div.innerHTML = '<div class="empty">Nessun evento.</div>'; return; }
-      div.innerHTML = list.map(function(e) {
-        return '<div class="card"><h3>' + e.Titolo + '</h3><p>' + e.Descrizione + '</p><div class="meta">' + e.Data + ' - ' + e.Luogo + '</div></div>';
-      }).join('');
-    })
-    .catch(function() { document.getElementById('ev-list').innerHTML = '<div class="empty">Errore caricamento.</div>'; });
+function loadEventi(){
+fetch(API+'?action=getEventi')
+.then(function(r){return r.json();})
+.then(function(list){
+var div=document.getElementById('ev-list');
+if(!list.length){div.innerHTML='<div class="empty">Nessun evento.</div>';return;}
+div.innerHTML=list.map(function(e){
+return '<div class="card"><h3>'+e.Titolo+'</h3><p>'+e.Descrizione+'</p><div class="meta">'+e.Data+' - '+e.Luogo+'</div></div>';
+}).join('');
+}).catch(function(){document.getElementById('ev-list').innerHTML='<div class="empty">Errore.</div>';});
 }
 
-document.getElementById('btnAddU').addEventListener('click', function() {
-  var url = API + '?action=addUtente&nome=' + encodeURIComponent(document.getElementById('an').value) + '&cognome=' + encodeURIComponent(document.getElementById('ac').value) + '&ruolo=' + encodeURIComponent(document.getElementById('ar').value) + '&email=' + encodeURIComponent(document.getElementById('ae').value) + '&telefono=' + encodeURIComponent(document.getElementById('at').value);
-  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
-    document.getElementById('mu').textContent = d.successo ? 'Aggiunto! Codice: ' + d.codice_tessera : 'Errore.';
-    if (d.successo) { document.getElementById('an').value=''; document.getElementById('ac').value=''; document.getElementById('ae').value=''; document.getElementById('at').value=''; }
-  }).catch(function() { document.getElementById('mu').textContent = 'Errore connessione.'; });
-});
-
-document.getElementById('btnAddE').addEventListener('click', function() {
-  var url = API + '?action=addEvento&titolo=' + encodeURIComponent(document.getElementById('et').value) + '&data=' + encodeURIComponent(document.getElementById('ed').value) + '&luogo=' + encodeURIComponent(document.getElementById('el').value) + '&descrizione=' + encodeURIComponent(document.getElementById('edes').value);
-  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
-    document.getElementById('me').textContent = d.successo ? 'Evento pubblicato!' : 'Errore.';
-    if (d.successo) { document.getElementById('et').value=''; document.getElementById('el').value=''; document.getElementById('edes').value=''; }
-  }).catch(function() { document.getElementById('me').textContent = 'Errore connessione.'; });
-});
-
-document.getElementById('btnAddN').addEventListener('click', function() {
-  var url = API + '?action=addNews&titolo=' +
-encodeURIComponent(document.getElementById('nt').value) + '&contenuto=' + encodeURIComponent(document.getElementById('nc').value);
-  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
-    document.getElementById('mn').textContent = d.successo ? 'News pubblicata!' : 'Errore.';
-    if (d.successo) { document.getElementById('nt').value=''; document.getElementById('nc').value=''; }
-  }).catch(function() { document.getElementById('mn').textContent = 'Errore connessione.'; });
-});
-</script>
-</body>
-</html>
+function loadGallery(){
+document.getElementById('album-view').style.display='block';
+document.getElementById('foto-view').style.display='none';
+document.getElementById('album-list').innerHTML='<div class="load">Caricamento album...</div>';
+fetch(API+'?action=getGalleria')
+.then(function(r){return r.json();})
+.then(function(albums){
+var div=document.getElementById('album-list');
+if(!albums.length){div.innerHTML='<div class="empty">Nessun album trovato.</div>';return;}
+div.innerHTML=albums.map(function(a,i){
+return '<div class="album-card" onclick="apriAlbum('+i+')"><h3>'+a.nome+'</h3><div class="album-info
