@@ -204,3 +204,12 @@ document.getElementById('btnAddE').addEventListener('click', function() {
 
 document.getElementById('btnAddN').addEventListener('click', function() {
   var url = API + '?action=addNews&titolo=' +
+encodeURIComponent(document.getElementById('nt').value) + '&contenuto=' + encodeURIComponent(document.getElementById('nc').value);
+  fetch(url).then(function(r) { return r.json(); }).then(function(d) {
+    document.getElementById('mn').textContent = d.successo ? 'News pubblicata!' : 'Errore.';
+    if (d.successo) { document.getElementById('nt').value=''; document.getElementById('nc').value=''; }
+  }).catch(function() { document.getElementById('mn').textContent = 'Errore connessione.'; });
+});
+</script>
+</body>
+</html>
