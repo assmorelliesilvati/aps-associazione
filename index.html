@@ -211,3 +211,60 @@ var div=document.getElementById('album-list');
 if(!albums.length){div.innerHTML='<div class="empty">Nessun album trovato.</div>';return;}
 div.innerHTML=albums.map(function(a,i){
 return '<div class="album-card" onclick="apriAlbum('+i+')"><h3>'+a.nome+'</h3><div class="album-info
+'">'+a.foto.length+' foto</div></div>';
+}).join('');
+window._albums=albums;
+}).catch(function(){document.getElementById('album-list').innerHTML='<div class="empty">Errore caricamento.</div>';});
+}
+
+function apriAlbum(i){
+var album=window._albums[i];
+document.getElementById('album-view').style.display='none';
+document.getElementById('foto-view').style.display='block';
+document.getElementById('album-titolo').textContent=album.nome;
+if(!album.foto.length){document.getElementById('foto-list').innerHTML='<div class="empty">Nessuna foto in questo album.</div>';return;}
+document.getElementById('foto-list').innerHTML=album.foto.map(function(f){
+return '<img src="https://drive.google.com/thumbnail?id='+f.id+'&sz=w400" onclick="apriLightbox(\'https://drive.google.com/uc?export=view&id='+f.id+'\')" loading="lazy">';
+}).join('');
+}
+
+document.getElementById('btnBack').addEventListener('click',function(){
+document.getElementById('foto-view').style.display='none';
+document.getElementById('album-view').style.display='block';
+});
+
+document.getElementById('lbClose').addEventListener('click',function(){
+document.getElementById('lightbox').classList.remove('open');
+});
+
+function apriLightbox(src){
+document.getElementById('lbImg').src=src;
+document.getElementById('lightbox').classList.add('open');
+}
+
+document.getElementById('btnAddU').addEventListener('click',function(){
+var url=API+'?action=addUtente&nome='+encodeURIComponent(document.getElementById('an').value)+'&cognome='+encodeURIComponent(document.getElementById('ac').value)+'&ruolo='+encodeURIComponent(document.getElementById('ar').value)+'&email='+encodeURIComponent(document.getElementById('ae').value)+'&telefono='+encodeURIComponent(document.getElementById('at').value);
+fetch(url).then(function(r){return r.json();}).then(function(d){
+document.getElementById('mu').textContent=d.successo?'Aggiunto! Codice: '+d.codice_tessera:'Errore.';
+if(d.successo){document.getElementById('an').value='';document.getElementById('ac').value='';document.getElementById('ae').value='';document.getElementById('at').value='';}
+}).catch(function(){document.getElementById('mu').textContent='Errore connessione.';});
+});
+
+document.getElementById('btnAddE').addEventListener('click',function(){
+var url=API+'?action=addEvento&titolo='+encodeURIComponent(document.getElementById('et').value)+'&data='+encodeURIComponent(document.getElementById('ed').value)+'&luogo='+encodeURIComponent(document.getElementById('el').value)+'&descrizione='+encodeURIComponent(document.getElementById('edes').value);
+fetch(url).then(function(r){return r.json();}).then(function(d){
+document.getElementById('me').textContent=d.successo?'Evento pubblicato!':'Errore.';
+if(d.successo){document.getElementById('et').value='';document.getElementById('el').value='';document.getElementById('edes').value='';}
+}).catch(function(){document.getElementById('me').textContent='Errore connessione.';});
+});
+
+document.getElementById('btnAddN').addEventListener('click',function(){
+var url=API+'?action=addNews&titolo='+encodeURIComponent(document.getElementById('nt').value)+'&contenuto='+encodeURIComponent(document.getElementById('nc').value);
+fetch(url).then(function(r){return r.json();}).then(function(d){
+document.getElementById('mn').textContent=d.successo?'News pubblicata!':'Errore.';
+if(d.successo){document.getElementById('nt').value='';document.getElementById('nc').value='';}
+}).catch(function(){document.getElementById('mn').textContent='Errore connessione.';});
+});
+</script>
+</body>
+</html>
